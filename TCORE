@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topologia de Roteadores - FILHOS e SERVIÇOS</title>
+    <style>
+	html {
+            font-size: 16px;
+        }
+        .router-tree {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        
+        .router-node {
+            margin-left: 20px;
+            border-left: 1px dashed #ccc;
+            padding-left: 15px;
+	    font-size: 0.95em;
+        }
+        
+        .router-item {
+            padding: 5px 10px;
+            margin: 5px 0;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+	    font-size: 0.9em;
+        }
+        
+        .router-item:hover {
+            background-color: #e9e9e9;
+        }
+        
+        .router-name {
+            font-weight: bold;
+            margin-left: 5px;
+        }
+        
+        .toggle-icon {
+            width: 18px;
+            text-align: center;
+	    font-size: 0.9em;
+        }
+        
+        .connection-info {
+            font-size: 0.7em;
+            color: #666;
+            margin-left: 10px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .main-router {
+            background-color: #d4edda;
+            border-left: 3px solid #28a745;
+        }
+        
+        .children-section {
+            background-color: #e7f5fe;
+            border-left: 3px solid #1e88e5;
+        }
+        
+        .services-section {
+            background-color: #fff8e1;
+            border-left: 3px solid #ffc107;
+        }
+        
+        .ethch-section {
+            background-color: #f3e5f5;
+            border-left: 3px solid #9c27b0;
+        }
+        
+        .service-item {
+            background-color: #e8f5e9;
+            border-left: 3px solid #4caf50;
+        }
+        
+        .oms-section {
+            background-color: #e3f2fd;
+            border-left: 3px solid #2196f3;
+        }
+        
+        .ots-section {
+            background-color: #e0f7fa;
+            border-left: 3px solid #00bcd4;
+        }
+        
+        .ports-section {
+            background-color: #fff3e0;
+            border-left: 3px solid #ffa726;
+        }
+    </style>
+</head>
+<body>
+    <h1>Topologia de Roteadores - FILHOS e SERVIÇOS</h1>
+    
+    <div class="router-tree" id="routerTree">
+        <!-- A estrutura será gerada pelo JavaScript -->
+    </div>
+    
+    <script>
+        // Dados dos roteadores (FILHOS diretamente abaixo de TCORE01.PAEMF)
+        const filhosData = {
+            id: 'root',
+            name: 'TCORE01.PAEMF',
+            isMain: true,
+            connections: [
+                {
+                    id: 'children',
+                    name: 'FILHOS',
+                    isChildrenSection: true,
+                    connections: [
+                        { 
+                            id: 'r2a', 
+                            name: 'AGG01.CANNET', 
+                            connections: [] 
+                        },
+                        { 
+                            id: 'r2b', 
+                            name: 'AGG01.CSLNET', 
+                            connections: [
+                                // SEÇÃO FILHOS DENTRO DE AGG01.CSLNET
+                                {
+                                    id: 'children-cslnet',
+                                    name: 'FILHOS',
+                                    isChildrenSection: true,
+                                    connections: [
+                                        { id: 'r2b1', name: 'AGG01.CSL', connections: [] },
+                                        { id: 'r2b2', name: 'AGG01.CSLTH', connections: [] },
+                                        { id: 'r2b3', name: 'AGG01.ERE0ET', connections: [] },
+                                        { id: 'r2b4', name: 'AGG01.LJODE', connections: [] },
+                                        { id: 'r2b5', name: 'AGG01.PASPDR', connections: [] }
+                                    ]
+                                },
+                                // SEÇÃO SERVIÇOS
+                                {
+                                    id: 'services',
+                                    name: 'SERVIÇOS',
+                                    isServicesSection: true,
+                                    connections: [
+                                        { 
+                                            id: 'ethch001',
+                                            name: 'CSLNET/PAEMF/ETHCH/001',
+                                            isEthchSection: true,
+                                            connections: [
+                                                { 
+                                                    id: 'sv001',
+                                                    name: 'CSL NETIT PAE MF IT 100G 001',
+                                                    isServiceItem: true,
+                                                    connections: [
+                                                        // NOVA SUBSESSÃO PORTAS ADICIONADA AQUI
+                                                        {
+                                                            id: 'ports-eth-2',
+                                                            name: 'PORTAS',
+                                                            isPortsSection: true,
+                                                            connections: [
+                                                                { 
+                                                                    id: 'port1-2',
+                                                                    name: 'AGG01.CSLNET HUNDREDGIGE0/3/0/1',
+                                                                    isServiceItem: true,
+                                                                    connections: [] 
+                                                                },
+                                                                { 
+                                                                    id: 'port2-2',
+                                                                    name: 'TCORE01.PAEMF HUNDREDGIGE1/3/0/3',
+                                                                    isServiceItem: true,
+                                                                    connections: [] 
+                                                                }
+                                                            ]
+                                                        },
+                                                        {
+                                                            id: 'ochf-section',
+                                                            name: 'OCHF',
+                                                            isServiceItem: true,
+                                                            connections: [
+                                                                {
+                                                                    id: 'ochf001-w1',
+                                                                    name: 'CSL NET PAE MF OCHF 001 – W1',
+                                                                    isServiceItem: true,
+                                                                    connections: [
+                                                                        {
+                                                                            id: 'ports-section',
+                                                                            name: 'PORTAS',
+                                                                            isPortsSection: true,
+                                                                            connections: [
+                                                                                { 
+                                                                                    id: 'port1',
+                                                                                    name: 'NCS2006C_CSLNET-01 CHAN-21-7-2',
+                                                                                    isServiceItem: true,
+                                                                                    connections: [] 
+                                                                                },
+                                                                                { 
+                                                                                    id: 'port2',
+                                                                                    name: 'NCS2006C_PAEMF-01 CHAN-21-13-2',
+                                                                                    isServiceItem: true,
+                                                                                    connections: [] 
+                                                                                }
+                                                                            ]
+                                                                        },
+                                                                        {
+                                                                            id: 'oms-section',
+                                                                            name: 'OMS',
+                                                                            isOmsSection: true,
+                                                                            connections: [
+                                                                                {
+                                                                                    id: 'oms1',
+                                                                                    name: 'CSL NET   CSL VS    OMS   002',
+                                                                                    isOmsSection: true,
+                                                                                    connections: [
+                                                                                        {
+                                                                                            id: 'ots1',
+                                                                                            name: 'CSL NET   CSL VS    OTS   002',
+                                                                                            isOtsSection: true,
+                                                                                            connections: []
+                                                                                        }
+                                                                                    ]
+                                                                                },
+                                                                                {
+                                                                                    id: 'oms2',
+                                                                                    name: 'CSL VS    GDO LBR   OMS   002',
+                                                                                    isOmsSection: true,
+                                                                                    connections: [
+                                                                                        {
+                                                                                            id: 'ots2',
+                                                                                            name: 'CSL VS    GDO LBR   OTS   002',
+                                                                                            isOtsSection: true,
+                                                                                            connections: []
+                                                                                        }
+                                                                                    ]
+                                                                                },
+                                                                                {
+                                                                                    id: 'oms3',
+                                                                                    name: 'GDO LBR   NHO LO    OMS   002',
+                                                                                    isOmsSection: true,
+                                                                                    connections: [
+                                                                                        {
+                                                                                            id: 'ots3',
+                                                                                            name: 'GDO LBR   NHO LO    OTS   002',
+                                                                                            isOtsSection: true,
+                                                                                            connections: []
+                                                                                        }
+                                                                                    ]
+                                                                                },
+                                                                                {
+                                                                                    id: 'oms4',
+                                                                                    name: 'CAN NET   NHO LO    OMS   001',
+                                                                                    isOmsSection: true,
+                                                                                    connections: [
+                                                                                        {
+                                                                                            id: 'ots4',
+                                                                                            name: 'CAN NET   NHO LO    OTS   001',
+                                                                                            isOtsSection: true,
+                                                                                            connections: []
+                                                                                        }
+                                                                                    ]
+                                                                                },
+                                                                                {
+                                                                                    id: 'oms5',
+                                                                                    name: 'CAN NET   PAE MF    OMS   001',
+                                                                                    isOmsSection: true,
+                                                                                    connections: [
+                                                                                        {
+                                                                                            id: 'ots5',
+                                                                                            name: 'CAN NET   PAE MF    OTS   001',
+                                                                                            isOtsSection: true,
+                                                                                            connections: []
+                                                                                        }
+                                                                                    ]
+                                                                                }
+                                                                            ]
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                { 
+                                                    id: 'sv002',
+                                                    name: 'CSL NETIT PAE MF IT 100G 002',
+                                                    isServiceItem: true,
+                                                    connections: [] 
+                                                },
+                                                { 
+                                                    id: 'sv003',
+                                                    name: 'CSL NETIT PAE MF IT 100G 003',
+                                                    isServiceItem: true,
+                                                    connections: [] 
+                                                }
+                                            ] 
+                                        }
+                                    ]
+                                }
+                            ] 
+                        },
+                        { 
+                            id: 'r2c', 
+                            name: 'AGG01.CZAJV1', 
+                            connections: [] 
+                        },
+                        { 
+                            id: 'r2e', 
+                            name: 'AGG01.NHOLO', 
+                            connections: [] 
+                        },
+                        { 
+                            id: 'r2f', 
+                            name: 'AGG01.PAE', 
+                            connections: [] 
+                        },
+                        { 
+                            id: 'r2g', 
+                            name: 'AGG01.PAEMF', 
+                            connections: [] 
+                        },
+                        { 
+                            id: 'r2h', 
+                            name: 'AGG01.PAENR', 
+                            connections: [] 
+                        },
+                        { 
+                            id: 'r2i', 
+                            name: 'AGG01.PLTQN', 
+                            connections: [] 
+                        },
+                        { 
+                            id: 'r2j', 
+                            name: 'AGG01.SMACLA', 
+                            connections: [] 
+                        },
+                        { 
+                            id: 'r2k', 
+                            name: 'UACC01.PAEMF', 
+                            connections: [
+                                { id: 'r2k1', name: 'AP Corredor', connections: [] }
+                            ] 
+                        }
+                    ]
+                }
+            ]
+        };
+        
+        // Função para criar a visualização da árvore
+        function createRouterTree(router, parentElement, isRoot = false) {
+            const routerElement = document.createElement('div');
+            routerElement.className = 'router-node';
+            
+            const itemElement = document.createElement('div');
+            let itemClass = 'router-item';
+            
+            if (isRoot) itemClass += ' main-router';
+            if (router.isChildrenSection) itemClass += ' children-section';
+            if (router.isServicesSection) itemClass += ' services-section';
+            if (router.isEthchSection) itemClass += ' ethch-section';
+            if (router.isServiceItem) itemClass += ' service-item';
+            if (router.isOmsSection) itemClass += ' oms-section';
+            if (router.isOtsSection) itemClass += ' ots-section';
+            if (router.isPortsSection) itemClass += ' ports-section';
+            
+            itemElement.className = itemClass;
+            
+            const toggleIcon = document.createElement('span');
+            toggleIcon.className = 'toggle-icon';
+            toggleIcon.textContent = router.connections.length > 0 ? '▼' : ' ';
+            
+            const nameElement = document.createElement('span');
+            nameElement.className = 'router-name';
+            nameElement.textContent = router.name;
+            
+            const connectionInfo = document.createElement('span');
+            connectionInfo.className = 'connection-info';
+            connectionInfo.textContent = `(${router.connections.length} itens)`;
+            
+            itemElement.appendChild(toggleIcon);
+            itemElement.appendChild(nameElement);
+            itemElement.appendChild(connectionInfo);
+            
+            routerElement.appendChild(itemElement);
+            
+            const childrenContainer = document.createElement('div');
+            childrenContainer.className = router.connections.length > 0 ? '' : 'hidden';
+            
+            if (router.connections.length > 0) {
+                itemElement.addEventListener('click', function() {
+                    childrenContainer.classList.toggle('hidden');
+                    toggleIcon.textContent = childrenContainer.classList.contains('hidden') ? '▶' : '▼';
+                });
+            }
+            
+            router.connections.forEach(childRouter => {
+                createRouterTree(childRouter, childrenContainer);
+            });
+            
+            routerElement.appendChild(childrenContainer);
+            parentElement.appendChild(routerElement);
+        }
+        
+        // Inicializa a árvore
+        document.addEventListener('DOMContentLoaded', function() {
+            const treeContainer = document.getElementById('routerTree');
+            createRouterTree(filhosData, treeContainer, true);
+        });
+    </script>
+</body>
+</html>
